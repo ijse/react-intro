@@ -1,0 +1,21 @@
+{
+  "name": "anecdote",
+  "version": "1.0.0",
+  "description": "An internal presentation on React.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "react"
+  ],
+  "author": "Chen Min",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/minchnew/react-intro/issues"
+  },
+  "homepage": "https://github.com/minchnew/react-intro",
+  "dependencies": {
+    "express": "^4.12.3"
+  }
+}

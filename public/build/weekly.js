@@ -8,11 +8,25 @@ var converter = new Showdown.converter();
  */
 
 var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer",
+    getInitialState: function () {
+        return {
+            quant: this.props.defaultNum
+        }
+    },
+    addToQuant: function (delta) {
+        var newQuant = this.state.quant + delta;
+        this.setState({
+            quant: newQuant <= 0 ? 1 : newQuant
+        });
+    },
     render: function() {
       return (
           React.createElement("div", {className: "row"}, 
             React.createElement("h1", null, "周报"), 
-            React.createElement(RequirementsList, {data: this.props.reqs})
+            React.createElement("p", null, "目前共", this.state.quant, "个需求"), 
+            React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, 1)}, "加一个需求"), 
+            React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, -1)}, "减一个需求"), 
+            React.createElement(RequirementsList, {total: this.state.quant})
           )
       );
     }
@@ -20,11 +34,10 @@ var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer
 
 var RequirementsList = React.createClass({displayName: "RequirementsList",
     render: function() {
-        var reqComponents = this.props.data.map(function (req, index) {
-            return (
-                React.createElement(Requirement, {data: req, key: index})
-            );
-        });
+        var reqComponents = [];
+        for (var i = 0, len = this.props.total; i < len; i++) {
+            reqComponents.push(React.createElement(Requirement, {key: i}));
+        }
 
         return (
             React.createElement("div", null, 
@@ -41,36 +54,47 @@ var RequirementsList = React.createClass({displayName: "RequirementsList",
 });
 
 var Requirement = React.createClass({displayName: "Requirement",
+    getInitialState: function () {
+        return {
+            title: '[旅游B端] TBMS - 标签管理系统需求',
+            progress: '开发联调完成，待上线（90%）',
+            task: 'http://task.sankuai.com/browse/HFE-285',
+            wiki: 'http://wiki.sankuai.com/pages/viewpage.action?pageId=165350330',
+            target: '通过建立标签管理系统方便标签的管理',
+            thisWeek: '需求变更，增加编辑删除、图片上传等功能，BUGFIX',
+            risk: '暂无'
+        };
+    },
     render: function () {
         return (
             React.createElement("form", null, 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求标题"), 
-                React.createElement("input", {className: "form-control", type: "text", value: this.props.data.title})
+                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.title})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "关键时间点和进度"), 
-                React.createElement("input", {className: "form-control", type: "text", value: this.props.data.progress})
+                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.progress})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求Task"), 
-                React.createElement("input", {className: "form-control", type: "text", value: this.props.data.task})
+                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.task})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求Wiki"), 
-                React.createElement("input", {className: "form-control", type: "text", value: this.props.data.wiki})
+                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.wiki})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求目标或解决的问题"), 
-                React.createElement("input", {className: "form-control", type: "text", value: this.props.data.target})
+                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.target})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "本周开发内容"), 
-                React.createElement("textarea", {className: "form-control", rows: "8", value: this.props.data.thisWeek})
+                React.createElement("textarea", {className: "form-control", rows: "8", defaultValue: this.state.thisWeek})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "问题或风险"), 
-                React.createElement("input", {className: "form-control", type: "text", value: this.props.data.risk})
+                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.risk})
               )
             )
         );
@@ -100,6 +124,6 @@ var REQUIREMENTS = [
 ];
 
 React.render(
-  React.createElement(WeeklyReportComposer, {reqs: REQUIREMENTS}),
+  React.createElement(WeeklyReportComposer, {defaultNum: 1}),
   document.getElementById('content')
 );

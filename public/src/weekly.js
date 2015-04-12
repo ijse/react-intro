@@ -8,11 +8,25 @@ var converter = new Showdown.converter();
  */
 
 var WeeklyReportComposer = React.createClass({
+    getInitialState: function () {
+        return {
+            quant: this.props.defaultNum
+        }
+    },
+    addToQuant: function (delta) {
+        var newQuant = this.state.quant + delta;
+        this.setState({
+            quant: newQuant <= 0 ? 1 : newQuant
+        });
+    },
     render: function() {
       return (
           <div className="row">
             <h1>周报</h1>
-            <RequirementsList data={this.props.reqs} />
+            <p>目前共{this.state.quant}个需求</p>
+            <button className="btn btn-default" onClick={this.addToQuant.bind(this, 1)}>加一个需求</button>
+            <button className="btn btn-default" onClick={this.addToQuant.bind(this, -1)}>减一个需求</button>
+            <RequirementsList total={this.state.quant} />
           </div>
       );
     }
@@ -20,11 +34,10 @@ var WeeklyReportComposer = React.createClass({
 
 var RequirementsList = React.createClass({
     render: function() {
-        var reqComponents = this.props.data.map(function (req, index) {
-            return (
-                <Requirement data={req} key={index}/>
-            );
-        });
+        var reqComponents = [];
+        for (var i = 0, len = this.props.total; i < len; i++) {
+            reqComponents.push(<Requirement key={i}/>);
+        }
 
         return (
             <div>
@@ -41,36 +54,47 @@ var RequirementsList = React.createClass({
 });
 
 var Requirement = React.createClass({
+    getInitialState: function () {
+        return {
+            title: '[旅游B端] TBMS - 标签管理系统需求',
+            progress: '开发联调完成，待上线（90%）',
+            task: 'http://task.sankuai.com/browse/HFE-285',
+            wiki: 'http://wiki.sankuai.com/pages/viewpage.action?pageId=165350330',
+            target: '通过建立标签管理系统方便标签的管理',
+            thisWeek: '需求变更，增加编辑删除、图片上传等功能，BUGFIX',
+            risk: '暂无'
+        };
+    },
     render: function () {
         return (
             <form>
               <div className="form-group">
                 <label>需求标题</label>
-                <input className="form-control" type="text" value={this.props.data.title}/>
+                <input className="form-control" type="text" defaultValue={this.state.title}/>
               </div>
               <div className="form-group">
                 <label>关键时间点和进度</label>
-                <input className="form-control" type="text" value={this.props.data.progress}/>
+                <input className="form-control" type="text" defaultValue={this.state.progress}/>
               </div>
               <div className="form-group">
                 <label>需求Task</label>
-                <input className="form-control" type="text" value={this.props.data.task}/>
+                <input className="form-control" type="text" defaultValue={this.state.task}/>
               </div>
               <div className="form-group">
                 <label>需求Wiki</label>
-                <input className="form-control" type="text" value={this.props.data.wiki}/>
+                <input className="form-control" type="text" defaultValue={this.state.wiki}/>
               </div>
               <div className="form-group">
                 <label>需求目标或解决的问题</label>
-                <input className="form-control" type="text" value={this.props.data.target}/>
+                <input className="form-control" type="text" defaultValue={this.state.target}/>
               </div>
               <div className="form-group">
                 <label>本周开发内容</label>
-                <textarea className="form-control" rows="8" value={this.props.data.thisWeek}/>
+                <textarea className="form-control" rows="8" defaultValue={this.state.thisWeek}/>
               </div>
               <div className="form-group">
                 <label>问题或风险</label>
-                <input className="form-control" type="text" value={this.props.data.risk}/>
+                <input className="form-control" type="text" defaultValue={this.state.risk}/>
               </div>
             </form>
         );
@@ -100,6 +124,6 @@ var REQUIREMENTS = [
 ];
 
 React.render(
-  <WeeklyReportComposer reqs={REQUIREMENTS}/>,
+  <WeeklyReportComposer defaultNum={1}/>,
   document.getElementById('content')
 );

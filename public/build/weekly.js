@@ -11,7 +11,7 @@ var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer
     getInitialState: function () {
         return {
             quant: this.props.defaultNum
-        }
+        };
     },
     addToQuant: function (delta) {
         var newQuant = this.state.quant + delta;
@@ -33,11 +33,31 @@ var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer
 });
 
 var RequirementsList = React.createClass({displayName: "RequirementsList",
+    getInitialState: function () {
+        return {
+            listPreview: [],
+        };
+    },
+    updateListPreview: function (i) {
+        var that = this;
+        return function (component) {
+            var tmp = that.state.listPreview.slice();
+            tmp[i] = component;
+            that.setState({
+                listPreview: tmp
+            });
+        };
+    },
     render: function() {
         var reqComponents = [];
         for (var i = 0, len = this.props.total; i < len; i++) {
-            reqComponents.push(React.createElement(Requirement, {key: i}));
+            reqComponents.push(React.createElement(Requirement, {onPreviewRendered: this.updateListPreview(i), key: i}));
         }
+
+        var date = new Date();
+        var to = 'hb.rd.fe@meituan.com';
+        var cc = 'hb@meituan.com,mobile@meituan.com';
+        var subject = encodeURIComponent('酒店事业部-前端研发组-周报-'+date.getFullYear()+date.getMonth()+date.getDate());
 
         return (
             React.createElement("div", null, 
@@ -46,7 +66,11 @@ var RequirementsList = React.createClass({displayName: "RequirementsList",
                 reqComponents
               ), 
               React.createElement("div", {className: "col-md-6 preview"}, 
-                React.createElement("h2", null, "预览")
+                React.createElement("h2", null, "预览"), 
+                React.createElement("div", {id: "result"}, 
+                  this.state.listPreview
+                ), 
+                React.createElement("a", {className: "btn btn-default", href: "mailto:"+to+"?"+"subject="+subject+"&cc="+cc}, "发送邮件")
               )
             )
         );
@@ -56,45 +80,87 @@ var RequirementsList = React.createClass({displayName: "RequirementsList",
 var Requirement = React.createClass({displayName: "Requirement",
     getInitialState: function () {
         return {
-            title: '[旅游B端] TBMS - 标签管理系统需求',
-            progress: '开发联调完成，待上线（90%）',
-            task: 'http://task.sankuai.com/browse/HFE-285',
-            wiki: 'http://wiki.sankuai.com/pages/viewpage.action?pageId=165350330',
-            target: '通过建立标签管理系统方便标签的管理',
-            thisWeek: '需求变更，增加编辑删除、图片上传等功能，BUGFIX',
-            risk: '暂无'
+            title: '',
+            progress: '',
+            task: '',
+            wiki: '',
+            target: '',
+            thisWeek: '',
+            risk: ''
         };
+    },
+    handleChange: function () {
+        var that = this;
+        this.setState({
+            title: React.findDOMNode(this.refs.title).value,
+            progress: React.findDOMNode(this.refs.progress).value,
+            task: React.findDOMNode(this.refs.task).value,
+            wiki: React.findDOMNode(this.refs.wiki).value,
+            target: React.findDOMNode(this.refs.target).value,
+            thisWeek: React.findDOMNode(this.refs.thisWeek).value,
+            risk: React.findDOMNode(this.refs.risk).value
+        }, function () {
+            that.props.onPreviewRendered(this.renderPreview());
+        });
+    },
+    renderPreview: function () {
+        function createMarkup(component) {
+            return {__html: converter.makeHtml(component.toString())};
+        }
+
+        function createLinkMarkup(component) {
+            var raw = component.toString();
+            return {__html: converter.makeHtml('['+raw+']('+raw+')')};
+        }
+
+        return (
+            React.createElement("div", {key: this.props.key}, 
+              React.createElement("h3", null, this.state.title), 
+              React.createElement("h4", null, "关键时间点和进度"), 
+              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.progress)}), 
+              React.createElement("h4", null, "需求Task"), 
+              React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(this.state.task)}), 
+              React.createElement("h4", null, "需求Wiki"), 
+              React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(this.state.wiki)}), 
+              React.createElement("h4", null, "需求目标或解决的问题"), 
+              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.target)}), 
+              React.createElement("h4", null, "本周开发内容"), 
+              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.thisWeek)}), 
+              React.createElement("h4", null, "问题或风险"), 
+              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.risk)})
+            )
+        );
     },
     render: function () {
         return (
             React.createElement("form", null, 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求标题"), 
-                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.title})
+                React.createElement("input", {className: "form-control", type: "text", onChange: this.handleChange, defaultValue: this.state.title, ref: "title"})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "关键时间点和进度"), 
-                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.progress})
+                React.createElement("textarea", {className: "form-control", rows: "3", onChange: this.handleChange, defaultValue: this.state.progress, ref: "progress"})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求Task"), 
-                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.task})
+                React.createElement("input", {className: "form-control", type: "text", onChange: this.handleChange, defaultValue: this.state.task, ref: "task"})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求Wiki"), 
-                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.wiki})
+                React.createElement("input", {className: "form-control", type: "text", onChange: this.handleChange, defaultValue: this.state.wiki, ref: "wiki"})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求目标或解决的问题"), 
-                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.target})
+                React.createElement("input", {className: "form-control", type: "text", onChange: this.handleChange, defaultValue: this.state.target, ref: "target"})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "本周开发内容"), 
-                React.createElement("textarea", {className: "form-control", rows: "8", defaultValue: this.state.thisWeek})
+                React.createElement("textarea", {className: "form-control", rows: "3", onChange: this.handleChange, defaultValue: this.state.thisWeek, ref: "thisWeek"})
               ), 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "问题或风险"), 
-                React.createElement("input", {className: "form-control", type: "text", defaultValue: this.state.risk})
+                React.createElement("textarea", {className: "form-control", rows: "3", onChange: this.handleChange, defaultValue: this.state.risk, ref: "risk"})
               )
             )
         );

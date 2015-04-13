@@ -10,7 +10,8 @@ var converter = new Showdown.converter();
 var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer",
     getInitialState: function () {
         return {
-            quant: this.props.defaultNum
+            quant: this.props.defaultNum, // 需求的数量
+            userName: '陈敏'
         };
     },
     addToQuant: function (delta) {
@@ -19,13 +20,42 @@ var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer
             quant: newQuant <= 0 ? 1 : newQuant
         });
     },
+    handleChange: function () {
+        var userName = React.findDOMNode(this.refs.userName).value;
+        this.setState(function (previousState, currentProps) {
+            return {
+                quant: previousState.quant,
+                userName: userName
+            };
+        });
+    },
+    mailTo: function () {
+        var date = new Date();
+        var to = encodeURIComponent('hb.rd.fe@meituan.com');
+        var cc = encodeURIComponent('hb@meituan.com,mobile@meituan.com');
+        var subject = encodeURIComponent('酒店事业部-前端研发组-'+this.state.userName+'-周报-'+date.toISOString().slice(0,10).replace(/-/g,""));
+
+        return "mailto:"+to+"?"+"subject="+subject+"&cc="+cc;
+    },
     render: function() {
       return (
-          React.createElement("div", {className: "row"}, 
-            React.createElement("h1", null, "周报"), 
-            React.createElement("p", null, "目前共", this.state.quant, "个需求"), 
-            React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, 1)}, "加一个需求"), 
-            React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, -1)}, "减一个需求"), 
+          React.createElement("div", {className: "row level3"}, 
+            React.createElement("div", {className: "row"}, 
+              React.createElement("div", {className: "col-md-3"}, 
+                React.createElement("h1", null, "周报"), 
+                React.createElement("p", null, "目前共", this.state.quant, "个需求"), 
+                React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, 1)}, "加一个需求"), 
+                React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, -1)}, "减一个需求")
+              ), 
+              React.createElement("div", {className: "col-md-3"}, 
+                React.createElement("form", null, 
+                  React.createElement("div", {className: "form-group"}, 
+                    React.createElement("input", {className: "form-control", type: "text", onChange: this.handleChange, placeholder: "姓名", ref: "userName"})
+                  ), 
+                  React.createElement("a", {className: "btn btn-default", href: this.mailTo()}, "发送邮件")
+                )
+              )
+            ), 
             React.createElement(RequirementsList, {total: this.state.quant})
           )
       );
@@ -49,28 +79,23 @@ var RequirementsList = React.createClass({displayName: "RequirementsList",
         };
     },
     render: function() {
+        // Components are composable
         var reqComponents = [];
         for (var i = 0, len = this.props.total; i < len; i++) {
             reqComponents.push(React.createElement(Requirement, {onPreviewRendered: this.updateListPreview(i), key: i}));
         }
 
-        var date = new Date();
-        var to = 'hb.rd.fe@meituan.com';
-        var cc = 'hb@meituan.com,mobile@meituan.com';
-        var subject = encodeURIComponent('酒店事业部-前端研发组-周报-'+date.getFullYear()+date.getMonth()+date.getDate());
-
         return (
-            React.createElement("div", null, 
+            React.createElement("div", {className: "row level2"}, 
               React.createElement("div", {className: "col-md-6 to-do-done"}, 
                 React.createElement("h2", null, "业务需求"), 
                 reqComponents
               ), 
               React.createElement("div", {className: "col-md-6 preview"}, 
                 React.createElement("h2", null, "预览"), 
-                React.createElement("div", {id: "result"}, 
+                React.createElement("div", {className: "markdown-body"}, 
                   this.state.listPreview
-                ), 
-                React.createElement("a", {className: "btn btn-default", href: "mailto:"+to+"?"+"subject="+subject+"&cc="+cc}, "发送邮件")
+                )
               )
             )
         );
@@ -115,25 +140,25 @@ var Requirement = React.createClass({displayName: "Requirement",
 
         return (
             React.createElement("div", {key: this.props.key}, 
-              React.createElement("h3", null, this.state.title), 
-              React.createElement("h4", null, "关键时间点和进度"), 
+              React.createElement("h2", null, this.state.title), 
+              React.createElement("h3", null, "关键时间点和进度"), 
               React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.progress)}), 
-              React.createElement("h4", null, "需求Task"), 
+              React.createElement("h3", null, "需求Task"), 
               React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(this.state.task)}), 
-              React.createElement("h4", null, "需求Wiki"), 
+              React.createElement("h3", null, "需求Wiki"), 
               React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(this.state.wiki)}), 
-              React.createElement("h4", null, "需求目标或解决的问题"), 
+              React.createElement("h3", null, "需求目标或解决的问题"), 
               React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.target)}), 
-              React.createElement("h4", null, "本周开发内容"), 
+              React.createElement("h3", null, "本周开发内容"), 
               React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.thisWeek)}), 
-              React.createElement("h4", null, "问题或风险"), 
+              React.createElement("h3", null, "问题或风险"), 
               React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.risk)})
             )
         );
     },
     render: function () {
         return (
-            React.createElement("form", null, 
+            React.createElement("form", {className: "req"}, 
               React.createElement("div", {className: "form-group"}, 
                 React.createElement("label", null, "需求标题"), 
                 React.createElement("input", {className: "form-control", type: "text", onChange: this.handleChange, defaultValue: this.state.title, ref: "title"})

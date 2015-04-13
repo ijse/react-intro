@@ -10,7 +10,8 @@ var converter = new Showdown.converter();
 var WeeklyReportComposer = React.createClass({
     getInitialState: function () {
         return {
-            quant: this.props.defaultNum
+            quant: this.props.defaultNum, // 需求的数量
+            userName: '陈敏'
         };
     },
     addToQuant: function (delta) {
@@ -19,13 +20,42 @@ var WeeklyReportComposer = React.createClass({
             quant: newQuant <= 0 ? 1 : newQuant
         });
     },
+    handleChange: function () {
+        var userName = React.findDOMNode(this.refs.userName).value;
+        this.setState(function (previousState, currentProps) {
+            return {
+                quant: previousState.quant,
+                userName: userName
+            };
+        });
+    },
+    mailTo: function () {
+        var date = new Date();
+        var to = encodeURIComponent('hb.rd.fe@meituan.com');
+        var cc = encodeURIComponent('hb@meituan.com,mobile@meituan.com');
+        var subject = encodeURIComponent('酒店事业部-前端研发组-'+this.state.userName+'-周报-'+date.toISOString().slice(0,10).replace(/-/g,""));
+
+        return "mailto:"+to+"?"+"subject="+subject+"&cc="+cc;
+    },
     render: function() {
       return (
-          <div className="row">
-            <h1>周报</h1>
-            <p>目前共{this.state.quant}个需求</p>
-            <button className="btn btn-default" onClick={this.addToQuant.bind(this, 1)}>加一个需求</button>
-            <button className="btn btn-default" onClick={this.addToQuant.bind(this, -1)}>减一个需求</button>
+          <div className="row level3">
+            <div className="row">
+              <div className="col-md-3">
+                <h1>周报</h1>
+                <p>目前共{this.state.quant}个需求</p>
+                <button className="btn btn-default" onClick={this.addToQuant.bind(this, 1)}>加一个需求</button>
+                <button className="btn btn-default" onClick={this.addToQuant.bind(this, -1)}>减一个需求</button>
+              </div>
+              <div className="col-md-3">
+                <form>
+                  <div className="form-group">
+                    <input className="form-control" type="text" onChange={this.handleChange} placeholder="姓名" ref="userName"/>
+                  </div>
+                  <a className="btn btn-default" href={this.mailTo()}>发送邮件</a>
+                </form>
+              </div>
+            </div>
             <RequirementsList total={this.state.quant} />
           </div>
       );
@@ -49,28 +79,23 @@ var RequirementsList = React.createClass({
         };
     },
     render: function() {
+        // Components are composable
         var reqComponents = [];
         for (var i = 0, len = this.props.total; i < len; i++) {
             reqComponents.push(<Requirement onPreviewRendered={this.updateListPreview(i)} key={i}/>);
         }
 
-        var date = new Date();
-        var to = 'hb.rd.fe@meituan.com';
-        var cc = 'hb@meituan.com,mobile@meituan.com';
-        var subject = encodeURIComponent('酒店事业部-前端研发组-周报-'+date.getFullYear()+date.getMonth()+date.getDate());
-
         return (
-            <div>
+            <div className="row level2">
               <div className="col-md-6 to-do-done">
                 <h2>业务需求</h2>
                 {reqComponents}
               </div>
               <div className="col-md-6 preview">
                 <h2>预览</h2>
-                <div id="result">
+                <div className="markdown-body">
                   {this.state.listPreview}
                 </div>
-                <a className="btn btn-default" href={"mailto:"+to+"?"+"subject="+subject+"&cc="+cc}>发送邮件</a>
               </div>
             </div>
         );
@@ -115,25 +140,25 @@ var Requirement = React.createClass({
 
         return (
             <div key={this.props.key}>
-              <h3>{this.state.title}</h3>
-              <h4>关键时间点和进度</h4>
+              <h2>{this.state.title}</h2>
+              <h3>关键时间点和进度</h3>
               <div dangerouslySetInnerHTML={createMarkup(this.state.progress)}/>
-              <h4>需求Task</h4>
+              <h3>需求Task</h3>
               <div dangerouslySetInnerHTML={createLinkMarkup(this.state.task)}/>
-              <h4>需求Wiki</h4>
+              <h3>需求Wiki</h3>
               <div dangerouslySetInnerHTML={createLinkMarkup(this.state.wiki)}/>
-              <h4>需求目标或解决的问题</h4>
+              <h3>需求目标或解决的问题</h3>
               <div dangerouslySetInnerHTML={createMarkup(this.state.target)}/>
-              <h4>本周开发内容</h4>
+              <h3>本周开发内容</h3>
               <div dangerouslySetInnerHTML={createMarkup(this.state.thisWeek)}/>
-              <h4>问题或风险</h4>
+              <h3>问题或风险</h3>
               <div dangerouslySetInnerHTML={createMarkup(this.state.risk)}/>
             </div>
         );
     },
     render: function () {
         return (
-            <form>
+            <form className="req">
               <div className="form-group">
                 <label>需求标题</label>
                 <input className="form-control" type="text" onChange={this.handleChange} defaultValue={this.state.title} ref="title"/>

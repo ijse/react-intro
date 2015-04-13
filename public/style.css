@@ -1,5 +1,26 @@
 form {
-    border: 2px solid #949599;
     padding: 24px;
-    margin: 24px;
+    margin: 24px 0px;
+}
+
+form.req {
+    border: 1px solid #0004ff;
+}
+
+.level3, .level2 {
+    border: 1px solid;
+    padding: 24px;
+}
+.level3 {
+    border-color: #ff2c15;
+}
+.level2 {
+    border-color: #11ff00;
+    margin: 24px 0px;
+}
+
+.markdown-body {
+   min-width: 200px;
+   max-width: 790px;
+   margin: 0 auto;
 }

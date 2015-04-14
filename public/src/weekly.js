@@ -44,8 +44,8 @@ var WeeklyReportComposer = React.createClass({
               <div className="col-md-3">
                 <h1>周报</h1>
                 <p>目前共{this.state.quant}个需求</p>
-                <button className="btn btn-default" onClick={this.addToQuant.bind(this, 1)}>加一个需求</button>
-                <button className="btn btn-default" onClick={this.addToQuant.bind(this, -1)}>减一个需求</button>
+                <ActionButton text="加一个需求" onAction={this.addToQuant.bind(this, 1)} />
+                <ActionButton text="加一个需求" onAction={this.addToQuant.bind(this, -1)} />
               </div>
               <div className="col-md-3">
                 <form>
@@ -207,6 +207,14 @@ var Requirement = React.createClass({
               </div>
             </form>
         );
+    }
+});
+
+var ActionButton = React.createClass({
+    render: function() {
+      return (
+        <button className="btn btn-default" onClick={this.props.onAction}>{this.props.text}</button>
+      );
     }
 });
 

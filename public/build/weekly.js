@@ -44,8 +44,8 @@ var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer
               React.createElement("div", {className: "col-md-3"}, 
                 React.createElement("h1", null, "周报"), 
                 React.createElement("p", null, "目前共", this.state.quant, "个需求"), 
-                React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, 1)}, "加一个需求"), 
-                React.createElement("button", {className: "btn btn-default", onClick: this.addToQuant.bind(this, -1)}, "减一个需求")
+                React.createElement(ActionButton, {text: "加一个需求", onAction: this.addToQuant.bind(this, 1)}), 
+                React.createElement(ActionButton, {text: "加一个需求", onAction: this.addToQuant.bind(this, -1)})
               ), 
               React.createElement("div", {className: "col-md-3"}, 
                 React.createElement("form", null, 
@@ -207,6 +207,14 @@ var Requirement = React.createClass({displayName: "Requirement",
               )
             )
         );
+    }
+});
+
+var ActionButton = React.createClass({displayName: "ActionButton",
+    render: function() {
+      return (
+        React.createElement("button", {className: "btn btn-default", onClick: this.props.onAction}, this.props.text)
+      );
     }
 });
 

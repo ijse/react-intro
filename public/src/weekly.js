@@ -138,21 +138,39 @@ var Requirement = React.createClass({
             return {__html: converter.makeHtml('['+raw+']('+raw+')')};
         }
 
+        function createItem(value, key) {
+            var nameDict = {
+                progress: '关键时间点和进度',
+                task: '需求Task',
+                wiki: '需求Wiki',
+                target: '需求目标或解决的问题',
+                thisWeek: '本周开发内容',
+                risk: '问题或风险'
+            }
+            if (key === 'title') {
+                return <h2 key={key}>{value}</h2>;
+            } else if (key === 'task' || key === 'wiki') {
+                // Special treat for links
+                return (
+                    <div key={key}>
+                      <h3>{nameDict[key]}</h3>
+                      <div dangerouslySetInnerHTML={createLinkMarkup(value)}/>
+                    </div>
+                );
+            } else {
+                return (
+                    <div key={key}>
+                      <h3>{nameDict[key]}</h3>
+                      <div dangerouslySetInnerHTML={createMarkup(value)}/>
+                    </div>
+                );
+            }
+        }
+
+        // 注意{}里面的是JavaScript代码; Juicer/Handlebars的辅助函数是经过裁剪的函数
         return (
             <div key={this.props.key}>
-              <h2>{this.state.title}</h2>
-              <h3>关键时间点和进度</h3>
-              <div dangerouslySetInnerHTML={createMarkup(this.state.progress)}/>
-              <h3>需求Task</h3>
-              <div dangerouslySetInnerHTML={createLinkMarkup(this.state.task)}/>
-              <h3>需求Wiki</h3>
-              <div dangerouslySetInnerHTML={createLinkMarkup(this.state.wiki)}/>
-              <h3>需求目标或解决的问题</h3>
-              <div dangerouslySetInnerHTML={createMarkup(this.state.target)}/>
-              <h3>本周开发内容</h3>
-              <div dangerouslySetInnerHTML={createMarkup(this.state.thisWeek)}/>
-              <h3>问题或风险</h3>
-              <div dangerouslySetInnerHTML={createMarkup(this.state.risk)}/>
+              {_.chain(this.state).pick(_.identity).map(createItem).value()}
             </div>
         );
     },

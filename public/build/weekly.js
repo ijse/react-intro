@@ -138,21 +138,39 @@ var Requirement = React.createClass({displayName: "Requirement",
             return {__html: converter.makeHtml('['+raw+']('+raw+')')};
         }
 
+        function createItem(value, key) {
+            var nameDict = {
+                progress: '关键时间点和进度',
+                task: '需求Task',
+                wiki: '需求Wiki',
+                target: '需求目标或解决的问题',
+                thisWeek: '本周开发内容',
+                risk: '问题或风险'
+            }
+            if (key === 'title') {
+                return React.createElement("h2", {key: key}, value);
+            } else if (key === 'task' || key === 'wiki') {
+                // Special treat for links
+                return (
+                    React.createElement("div", {key: key}, 
+                      React.createElement("h3", null, nameDict[key]), 
+                      React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(value)})
+                    )
+                );
+            } else {
+                return (
+                    React.createElement("div", {key: key}, 
+                      React.createElement("h3", null, nameDict[key]), 
+                      React.createElement("div", {dangerouslySetInnerHTML: createMarkup(value)})
+                    )
+                );
+            }
+        }
+
+        // 注意{}里面的是JavaScript代码; Juicer/Handlebars的辅助函数是经过裁剪的函数
         return (
             React.createElement("div", {key: this.props.key}, 
-              React.createElement("h2", null, this.state.title), 
-              React.createElement("h3", null, "关键时间点和进度"), 
-              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.progress)}), 
-              React.createElement("h3", null, "需求Task"), 
-              React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(this.state.task)}), 
-              React.createElement("h3", null, "需求Wiki"), 
-              React.createElement("div", {dangerouslySetInnerHTML: createLinkMarkup(this.state.wiki)}), 
-              React.createElement("h3", null, "需求目标或解决的问题"), 
-              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.target)}), 
-              React.createElement("h3", null, "本周开发内容"), 
-              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.thisWeek)}), 
-              React.createElement("h3", null, "问题或风险"), 
-              React.createElement("div", {dangerouslySetInnerHTML: createMarkup(this.state.risk)})
+              _.chain(this.state).pick(_.identity).map(createItem).value()
             )
         );
     },

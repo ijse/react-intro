@@ -94,7 +94,7 @@ var RequirementsList = React.createClass({displayName: "RequirementsList",
               React.createElement("div", {className: "col-md-6 preview"}, 
                 React.createElement("h2", null, "预览"), 
                 React.createElement("div", {className: "markdown-body"}, 
-                  this.state.listPreview
+                  this.state.listPreview.slice(0, this.props.total)
                 )
               )
             )

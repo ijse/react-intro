@@ -94,7 +94,7 @@ var RequirementsList = React.createClass({
               <div className="col-md-6 preview">
                 <h2>预览</h2>
                 <div className="markdown-body">
-                  {this.state.listPreview}
+                  {this.state.listPreview.slice(0, this.props.total)}
                 </div>
               </div>
             </div>

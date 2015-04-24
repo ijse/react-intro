@@ -45,7 +45,7 @@ var WeeklyReportComposer = React.createClass({displayName: "WeeklyReportComposer
                 React.createElement("h1", null, "周报"), 
                 React.createElement("p", null, "目前共", this.state.quant, "个需求"), 
                 React.createElement(ActionButton, {text: "加一个需求", onAction: this.addToQuant.bind(this, 1)}), 
-                React.createElement(ActionButton, {text: "加一个需求", onAction: this.addToQuant.bind(this, -1)})
+                React.createElement(ActionButton, {text: "减一个需求", onAction: this.addToQuant.bind(this, -1)})
               ), 
               React.createElement("div", {className: "col-md-3"}, 
                 React.createElement("form", null, 
@@ -82,7 +82,7 @@ var RequirementsList = React.createClass({displayName: "RequirementsList",
         // Components are composable
         var reqComponents = [];
         for (var i = 0, len = this.props.total; i < len; i++) {
-            reqComponents.push(React.createElement(Requirement, {onPreviewRendered: this.updateListPreview(i), key: i}));
+            reqComponents.push(React.createElement(Requirement, {onPreviewRendered: this.updateListPreview(i), key: i, index: i+1}));
         }
 
         return (
@@ -117,7 +117,7 @@ var Requirement = React.createClass({displayName: "Requirement",
     handleChange: function () {
         var that = this;
         this.setState({
-            title: React.findDOMNode(this.refs.title).value,
+            title: that.props.index + '. ' + React.findDOMNode(this.refs.title).value,
             progress: React.findDOMNode(this.refs.progress).value,
             task: React.findDOMNode(this.refs.task).value,
             wiki: React.findDOMNode(this.refs.wiki).value,
